@@ -3,7 +3,6 @@ close all
 
 %% GGS
 % accelerating
-malgucka
 limit = 110;
 
 simtime = 4.5;
