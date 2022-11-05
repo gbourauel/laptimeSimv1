@@ -1,22 +1,24 @@
-clear
-close all
+function laptime = endurance()
 
 %% GGS
 % accelerating
 malgucka
 limit = 110;
 
+open('model.slx')
+mdlWks = get_param('model', 'ModelWorkspace');
+
 simtime = 4.5;
+mdlWks.assignin('simtime', simtime)
 
 time = (0:0.1:simtime)';
 
-tq_Mot_Re = [29.1 29.1 29.1 26 18 15 0] .*2;
+mdlWks.assignin('tq_Mot_Re', [29.1 29.1 29.1 26 18 15 0] * 2)
 
-p_Brk_Re = [time, zeros(length(time),1)];
-p_Brk_Frnt = p_Brk_Re;
+mdlWks.assignin('p_Brk_Re', [time, zeros(length(time), 1)])
+mdlWks.assignin('p_Brk_Frnt', [time, zeros(length(time), 1)])
 
-initial_speed = 0.2;
-initial_whlspeed = initial_speed / dstRdTir;
+mdlWks.assignin('initial_speed', 0.2)
 
 out = sim("model.slx");
 
@@ -25,16 +27,16 @@ v_acc = out.v(out.v<=limit);
 
 % breaking
 simtime = 5;
+mdlWks.assignin('simtime', simtime)
 
 time = (0:0.1:simtime)';
 
-tq_Mot_Re = [0 0 0 0 0 0 0];
+mdlWks.assignin('tq_Mot_Re', [0 0 0 0 0 0 0] * 2)
 
-p_Brk_Re = [time, ones(length(time), 1) .* 4];
-p_Brk_Frnt = [time, ones(length(time), 1) .* 6];
+mdlWks.assignin('p_Brk_Re', [time, ones(length(time), 1) * 4])
+mdlWks.assignin('p_Brk_Frnt', [time, ones(length(time), 1) * 6])
 
-initial_speed = max(v_acc) / 3.6;
-initial_whlspeed = 0;
+mdlWks.assignin('initial_speed', max(v_acc) / 3.6)
 
 out = sim("model.slx");
 
@@ -50,20 +52,8 @@ accy = accy_min:0.1:accy_max;
 GG_acc = sqrt(abs((1-(abs(accy).^2)/(abs(accy_max)^2))).*(accx_acc.^2));
 GG_brk = -sqrt(abs((1-(abs(accy).^2)/(abs(accy_max)^2))).*(accx_brk.^2));
 
-% plot
-figure
-surf(accy, v_acc, GG_acc)
-hold on
-surf(accy, v_brk, GG_brk)
-title('G-G-S-Diagramm')
-xlabel('accy [g]')
-ylabel('speed [km/h]')
-zlabel('accx [g]')
-hold off
-grid on
-
 % convert to SI for easier calculation
-GG_acc = GG_acc .* 9.81 * 0.6;
+GG_acc = GG_acc .* 9.81;
 GG_brk = GG_brk .* 9.81;
 accy = accy .* 9.81;
 accy_max = accy_max * 9.81;
@@ -78,8 +68,6 @@ load('FSG22.txt')
 load('enduranceFSG.txt')
 
 dst_Rd_Track = FSG22(:,4);
-dst_Cor_Y_Track = FSG22(:,2);
-dst_Cor_X_Track = FSG22(:,1);
 
 v_GSS = enduranceFSG(:,2);
 
@@ -88,8 +76,6 @@ section_length = 0.2;
 
 dst_Rd_Track = movavgFilt(dst_Rd_Track', 71, "Center")';
 dst = cumtrapz(v_GSS ./ 3.6) .* 0.001;
-dst1 = (0:section_length:dst(end))';
-dst2 = dst;
 
 track = zeros(ceil(dst(end) / section_length), 1);
 
@@ -100,16 +86,6 @@ end
 
 track(abs(track) > 60) = 0;
 track(abs(track) < 7) = 7;
-
-% plot
-figure
-plot(dst_Cor_Y_Track, dst_Cor_X_Track)
-axis equal
-figure
-plot(dst1, track)
-title('radii over driven distance')
-xlabel('distance [m]')
-ylabel('radius [m]')
 
 % ignore negative radii, because GGS is symmetric
 track = abs(track);
@@ -133,15 +109,6 @@ i = 1;
 
 % launch
 v_exit(i) = v_GSS(1) / 3.6;
-
-if v_exit(i) == 0
-    [~,index] = min(abs(v_acc - v_exit(i)));
-    a_exit(i) = GG_acc(index, accy == 0);
-    
-    a_exit(i) = GG_acc(index + 1, accy == 0);
-    laptime(i+1) = sqrt(2 / (a_exit(i)));
-    v_exit(i) = a_exit(i) * laptime(i+1);
-end
 
 % forward calculation
 for section = track2'
@@ -186,16 +153,6 @@ for section = track2'
     i = i + 1;
 end
 
+laptime = sum(laptime);
 
-% plot
-figure
-plot(dst2, v_GSS);
-hold on
-plot(dst1, v_exit(2:end) * 3.6)
-legend("FSG 2022", "Laptime Simulation")
-title("results")
-xlabel("distance [m]")
-ylabel("speed [kph]")
-
-disp("simulated laptime: " + sum(laptime))
-disp("actual laptime: " + (enduranceFSG(end,1) - enduranceFSG(1,1)))
+end
