@@ -1,4 +1,4 @@
-function laptime = accel(GG_acc, accy, v_acc, limit)
+function laptime = accel(GG_acc, v_acc, limit)
 
 %% Track
 section_length = 0.5;
@@ -14,9 +14,8 @@ i = 1;
 
 % launch
 [~,index] = min(abs(v_acc - v_exit(i)));
-a_exit(i) = GG_acc(index, accy == 0);
+a_exit(i) = max(GG_acc(index, :));
 
-a_exit(i) = GG_acc(index + 1, accy == 0);
 laptime(i+1) = sqrt(2 / (a_exit(i)));
 v_exit(i) = a_exit(i) * laptime(i+1) + v_exit(i);
 
@@ -24,7 +23,7 @@ v_exit(i) = a_exit(i) * laptime(i+1) + v_exit(i);
 for section = track2
     % indexing
     [~,index] = min(abs(v_acc - v_exit(i)));
-    a_exit(i) = GG_acc(index, accy == 0);
+    a_exit(i) = max(GG_acc(index, :));
 
     % "driving"
     laptime(i+1) = section_length / (v_exit(i));

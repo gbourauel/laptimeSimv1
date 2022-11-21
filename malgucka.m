@@ -1,5 +1,5 @@
 % vehicle parameters
-mVeh = 282;         % mass vehicle with driver      [kg]
+m_Veh = 288;         % mass vehicle with driver      [kg]
 dstRdTir = 0.2032;  % radius tire                   [m]
 gbx = 13.8 * 0.95;  % ratio gearbox effective       [ ]
 coeffRoll = 0.025;  % coefficient rollresistance    [ ]

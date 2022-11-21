@@ -1,0 +1,35 @@
+Endurance Minimum
+Time = 75.7551 s
+peak torque = 40 Nm
+eckdrehzahl = 16000 rpm
+gbx = 1:16
+
+Endurance Fischer Motor
+time = 75.8865 s
+peak torque = 29.1 Nm
+eckdrehzahl = 13000 rpm
+gbx = 13.8
+
+AutoX Minimum
+time = 76.0391 s
+peak torque = 32 Nm
+eckdrehzahl = 18000 rpm
+gbx = 1:16
+
+AutoX Fischer Motor
+time = 76.0909 s
+peak torque = 29.1 Nm
+eckdrehzahl = 13000 rpm
+gbx = 13.8
+
+Accel Minimum
+time = 3.2462 s
+peak torque = 26 Nm
+eckdrehzahl = 22000 rpm
+gbx = 1:16
+
+Accel Fischer Motor
+time = 3.2543 s
+peak torque = 29.1 Nm
+eckdrehzahl = 13000 rpm
+gbx = 13.8

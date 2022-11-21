@@ -1,4 +1,4 @@
-function laptime = autox(GG_acc, GG_brk, accy, accy_max, v_acc, v_brk, limit)
+function laptime = autox(GG_acc, GG_brk, accy_acc, v_acc, v_brk, limit)
 
 %% Track
 % loading track data
@@ -47,9 +47,8 @@ i = 1;
 
 % launch
 [~,index] = min(abs(v_acc - v_exit(i)));
-a_exit(i) = GG_acc(index, accy == 0);
+a_exit(i) = max(GG_acc(index, :));
 
-a_exit(i) = GG_acc(index + 1, accy == 0);
 laptime(i+1) = sqrt(2 / (a_exit(i)));
 v_exit(i) = a_exit(i) * laptime(i+1) + v_exit(i);
 
@@ -59,13 +58,19 @@ for section = track2'
     if section == 0
         % indexing
         [~,index] = min(abs(v_acc - v_exit(i)));
-        a_exit(i) = GG_acc(index, accy == 0);
+        a_exit(i) = max(GG_acc(index, :));
 
     % curves
     else
-        % better calculation for accy_max needed when full GG-Diagram is
-        % working!!!!!
-        v_entry = sqrt(accy_max * section);
+        for l = fliplr(1:length(v_acc))
+            accy = accy_acc(l);
+
+            v_entry = sqrt(accy * section);
+
+            if v_entry <= v_acc(l)
+                break
+            end
+        end
 
         % breaking in previous sectors to match entry speed
         k = i;
@@ -73,7 +78,7 @@ for section = track2'
         while v_exit(i) > v_entry
             for j = k:i
                 [~,index] = min(abs(v_brk - v_exit(j)));
-                a_exit(j) = GG_brk(index, accy == 0);
+                a_exit(j) = min(GG_brk(index, :));
         
                 laptime(j+1) = section_length / (v_exit(j));
             
