@@ -37,6 +37,9 @@ for section = track2
     i = i + 1;
 end
 
+% figure
+% plot(cumsum(laptime), v_exit * 3.6)
+
 laptime = sum(laptime);
 
 end

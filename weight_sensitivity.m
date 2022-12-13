@@ -5,18 +5,18 @@ open('model.slx')
 malgucka
 mdlWks = get_param('model', 'ModelWorkspace');
 
-EN = zeros([21 1]);
-AU = zeros([21 1]);
-AC = zeros([21 1]);
+EN = zeros([6 1]);
+AU = zeros([6 1]);
+AC = zeros([6 1]);
 
 l = 1;
 
-for w = -20:2:20
+for w = 5:5:30
     %% longitudinal bullshit
     % GG breaking        
     limit = 110;
     
-    mdlWks.assignin('mVeh', m_Veh + w)
+    mdlWks.assignin('mVeh', m_Veh)
 
     simtime = 5;
     mdlWks.assignin('simtime', simtime)
@@ -37,7 +37,7 @@ for w = -20:2:20
     vel_brk = out.v(out.v > 0.2 & out.v <= limit);
     
     % GG accelerating
-    [speed_Mot_Re, tq_Mot_Re] = curve(29.1, 13000);
+    [speed_Mot_Re, tq_Mot_Re] = curve(29.1, 13000, w);
     
     limit = 110;
     
@@ -100,29 +100,29 @@ end
 
 %% Plots
 figure
-plot(-20:2:20, AC)
-xlabel('weight savings [kg]')
+plot(5:5:30, AC)
+xlabel('torque at max rpm [Nm]')
 ylabel('Laptime [s]')
 title('Acceleration')
 
 figure
-plot(-20:2:20, AU)
-xlabel('weight savings [kg]')
+plot(5:5:30, AU)
+xlabel('torque at max rpm [Nm]')
 ylabel('Laptime [s]')
 title('AutoX')
 figure
-plot(-20:2:20, EN)
-xlabel('weight savings [kg]')
+plot(5:5:30, EN)
+xlabel('torque at max rpm [Nm]')
 ylabel('Laptime [s]')
 title('Endurance')
 
 %% Functions
-function [speed_Mot, tq_Mot] = curve(tq_Peak, speed_Corner)
+function [speed_Mot, tq_Mot] = curve(tq_Peak, speed_Corner, tq_end)
 
 speed_Mot = 0:500:22500;
 
 tq_Mot = NaN(size(speed_Mot));
-tq_Mot(end) = tq_Peak / 4;
+tq_Mot(end) = tq_end;
 tq_Mot(1:speed_Corner / 500) = tq_Peak;
 tq_Mot = fillmissing(tq_Mot, 'linear');
 
